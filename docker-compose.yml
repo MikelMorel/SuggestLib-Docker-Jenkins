@@ -1,0 +1,75 @@
+version : '3.0'
+
+
+services:
+  dev:
+    image: maven:3.6.2-jdk-8
+    command: sleep inf
+    container_name: dev
+    volumes:
+    # - m2repo:/root/.m2/repository
+     - .:/tn
+    ports:
+      - "8080:8080"
+    networks:
+      - test1
+
+  jenkins:
+    build: .
+    container_name: jenkins
+    ports:
+      - "8082:8080"
+     # - "8087:8087"
+    volumes:
+      - retry_jenkings_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+    - test1
+
+
+
+
+  gitlab:
+    image: gitlab/gitlab-ee
+    container_name: gitlab
+    ports:
+      - "80:80"
+    volumes:
+      - retry_gitlab_config:/etc/gitlab
+      - retry_gitlab_logs:/var/log/gitlab
+      - retry_gitlab_data:/var/opt/gitlab
+    networks:
+      - test1
+
+
+
+  artifactory:
+    image: docker.bintray.io/jfrog/artifactory-oss:6.16.0
+    container_name: artifactory
+    ports:
+     - '8081:8081'
+    volumes:
+     - "artdata:/var/opt/jfrog/artifactory"
+    networks:
+      - test1
+
+
+
+
+
+networks:
+  test1:
+    external: true
+
+volumes:
+ # m2repo:
+  retry_jenkings_home:
+    external: true
+  retry_gitlab_config:
+    external: true
+  retry_gitlab_logs:
+    external: true
+  retry_gitlab_data:
+    external: true
+  artdata:  
+
